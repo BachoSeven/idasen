@@ -1,0 +1,130 @@
+#!/bin/sh
+
+_help()
+{
+    cat >&2 <<EOF
+Usage: idasen [pos | moveto \$height]
+
+You have to pair with your desk first. Use bluetoothctl for that. Next,
+create the file ~/.idasen:
+
+    hci=hci0  # default, can be omitted
+    device=11:22:33:44:55:66
+
+Once done, run "idasen pos" to retrieve the current height. Take note of
+those positions. "idase moveto \$height" will move the desk to
+approximately that height.
+EOF
+    exit 1
+}
+
+_config()
+{
+    . ~/.idasen
+
+    [ -z "$hci" ] && hci=hci0
+
+    if [ -z "$device" ]
+    then
+        echo "\$device undefined. Aborting. See '$(basename "$0") help'." >&2
+        return 1
+    fi
+}
+
+_connect()
+{
+    try=0
+
+    while [ "$try" -lt 10 ]
+    do
+        echo 'power on' | bluetoothctl >/dev/null 2>&1
+        echo "connect $device" | bluetoothctl >/dev/null 2>&1
+        try=$(( try + 1 ))
+
+        _pos >/dev/null 2>&1 && return 0
+
+        sleep 1
+    done
+
+    cat >&2 <<EOF
+Could not connect to \$device=$device. Aborting.
+
+Did you pair with the device yet?
+EOF
+
+    return 1
+}
+
+_pos()
+{
+    dev_dbus=$(echo "$device" | sed 's/:/_/g')
+    res=$(gdbus call --system --dest org.bluez \
+        --object-path /org/bluez/"$hci"/dev_"$dev_dbus"/service0018/char0019 \
+        --method org.bluez.GattCharacteristic1.ReadValue '[]' |
+        tr -d ,)
+    set -- $res
+    [ $# -lt 3 ] && return 1
+    echo $(($3 * 256 + $2))
+}
+
+_move()
+{
+    case "$1" in
+        up)   payload="[0x47, 0x00]" ;;
+        down) payload="[0x46, 0x00]" ;;
+        stop) payload="[0xFF, 0x00]" ;;
+        *)    return 1 ;;
+    esac
+
+    dev_dbus=$(echo "$device" | sed 's/:/_/g')
+    gdbus call --system --dest org.bluez \
+        --object-path /org/bluez/"$hci"/dev_"$dev_dbus"/service000e/char000f \
+        --method org.bluez.GattCharacteristic1.WriteValue "$payload" '[]' \
+        >/dev/null
+}
+
+_moveto()
+{
+    target=$1
+    current=$(_pos)
+
+    if [ -z "$target" ]
+    then
+        echo 'Target height missing.' >&2
+        return 1
+    fi
+
+    if [ "$target" -lt "$current" ]
+    then
+        dir=down
+        cmp=-gt
+    else
+        dir=up
+        cmp=-lt
+    fi
+
+    # This looks like a tight loop, but _pos() actually takes quite a
+    # long time (~0.1s on my system). It's all spent waiting, according
+    # to strace. So, this doesn't cause pointless high CPU usage -- but
+    # it's actually a bit *too slow* and we can't stop the desk exactly
+    # at the correct position. We always overshoot the target.
+    #
+    # This is not a problem of rapid forking, it's gdbus that takes so
+    # long. (Again, not a CPU issue, it sleeps.)
+    #
+    # TODO Can we monitor the position at a higher frequency?
+    while [ "$(_pos)" "$cmp" "$target" ]
+    do
+        _move "$dir"
+    done
+
+    _move stop
+}
+
+[ -n "$DEBUG" ] && set -x
+
+case "$1" in
+    pos)    _config && _connect && _pos ;;
+    moveto) _config && _connect && _moveto "$2" ;;
+    *)      _help ;;
+esac

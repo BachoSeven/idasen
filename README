@@ -1,0 +1,37 @@
+   _     _
+  (_) __| | __ _ ___  ___ _ __
+  | |/ _` |/ _` / __|/ _ \ '_ \
+  | | (_| | (_| \__ \  __/ | | |
+  |_|\__,_|\__,_|___/\___|_| |_|
+  https://uninformativ.de/git/idasen
+  https://uninformativ.de/bugs.html
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+Control the height of an IKEA IDÅSEN desk via bluetooth.
+
+Inspiration and, much more importantly, the control codes were taken
+from:
+
+https://github.com/mitsuhiko/idasen-control/
+
+
+Installation
+------------
+
+You need the tools "bluetoothctl" and "gdbus". We expect BlueZ to expose
+its services via D-Bus.
+
+
+Running
+-------
+
+This is a command line utilty. Run it without arguments to view a short
+help page. Example calls:
+
+    $ idasen pos
+    1345
+
+    $ idasen moveto 4000
