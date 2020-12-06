@@ -28,7 +28,7 @@ its services via D-Bus.
 Running
 -------
 
-This is a command line utilty. Run it without arguments to view a short
+This is a command line utility. Run it without arguments to view a short
 help page. Example calls:
 
     $ idasen pos
