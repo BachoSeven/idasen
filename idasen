@@ -64,6 +64,10 @@ _pos()
         tr -d ,)
     set -- $res
     [ $# -lt 3 ] && return 1
+
+    # We get four bytes as a response. The first two are uint16_t LE and
+    # specify the current position. The last two appear to be int16_t LE
+    # and indicate the current speed (we don't use those).
     echo $(($3 * 256 + $2))
 }
 
