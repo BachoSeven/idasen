@@ -113,6 +113,13 @@ _moveto()
     # long. (Again, not a CPU issue, it sleeps.)
     #
     # TODO Can we monitor the position at a higher frequency?
+    #
+    # According to the README in this project, the desk isn't great at
+    # providing accurate feedback anyway (I noticed that too while
+    # experimenting manually in bluetoothctl), so I'll probably just
+    # live with the current solution:
+    #
+    # https://github.com/rhyst/idasen-controller
     while [ "$(_pos)" "$cmp" "$target" ]
     do
         _move "$dir"
