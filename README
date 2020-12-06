@@ -15,14 +15,21 @@ Control the height of an IKEA IDÅSEN desk via bluetooth.
 Inspiration and, much more importantly, the control codes were taken
 from:
 
-https://github.com/mitsuhiko/idasen-control/
+    https://github.com/mitsuhiko/idasen-control
+
+There are a couple more similar projects out there, for example:
+
+    https://github.com/rhyst/idasen-controller
+    https://github.com/newAM/idasen
 
 
 Installation
 ------------
 
-You need the tools "bluetoothctl" and "gdbus". We expect BlueZ to expose
-its services via D-Bus.
+You need the tools "bluetoothctl" (bluez-utils) and "gdbus" (glib2). We
+expect BlueZ to expose its services via D-Bus. These requirements are
+usually fulfilled when run on GNU/Linux, so it's likely that you don't
+have to do any installation steps at all.
 
 
 Running
