@@ -55,6 +55,11 @@ EOF
     return 1
 }
 
+_disconnect()
+{
+    echo "disconnect $device" | bluetoothctl >/dev/null 2>&1
+}
+
 _pos()
 {
     dev_dbus=$(echo "$device" | sed 's/:/_/g')
@@ -135,7 +140,7 @@ _moveto()
 [ -n "$DEBUG" ] && set -x
 
 case "$1" in
-    pos)    _config && _connect && _pos ;;
-    moveto) _config && _connect && _moveto "$2" ;;
+    pos)    _config && _connect && _pos         ; _disconnect ;;
+    moveto) _config && _connect && _moveto "$2" ; _disconnect ;;
     *)      _help ;;
 esac
