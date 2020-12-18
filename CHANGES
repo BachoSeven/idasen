@@ -1,6 +1,6 @@
 Release history for idasen
 
-next
+v20.12  2020-12-18
   - Initial release, implemented as a shell script on top of
     bluetoothctl and gdbus.
   - Can get current position and move to another one.
