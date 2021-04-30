@@ -20,7 +20,7 @@ EOF
 
 _config()
 {
-    . $XDG_CONFIG_HOME/idasen/config
+    . ${XDG_CONFIG_HOME:-$HOME/.config}/idasen/config
 
     [ -z "$hci" ] && hci=hci0
 
