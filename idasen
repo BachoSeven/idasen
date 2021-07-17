@@ -129,6 +129,7 @@ _moveto()
     # live with the current solution:
     #
     # https://github.com/rhyst/idasen-controller
+    # shellcheck disable=SC1009,1072,1073
     while [ "$(_pos)" "$cmp" "$target" ]
     do
         _move "$dir"
